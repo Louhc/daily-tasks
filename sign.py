@@ -25,9 +25,9 @@ ROLE_URL = "https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie"
 SIGN_URL = "https://api-takumi.mihoyo.com/event/luna/sign"
 INFO_URL = "https://api-takumi.mihoyo.com/event/luna/info"
 
-# 候车室（论坛）打卡 API
-BBS_SIGN_URL = "https://bbs-api.mihoyo.com/apihub/app/api/signIn"
-BBS_SIGN_INFO_URL = "https://bbs-api.mihoyo.com/apihub/api/getSignInInfo"
+# 候车室（论坛）打卡 API（新域名 miyoushe.com）
+BBS_SIGN_URL = "https://bbs-api.miyoushe.com/apihub/app/api/signIn"
+BBS_SIGN_INFO_URL = "https://bbs-api.miyoushe.com/apihub/api/getSignInInfo"
 
 # 星穹铁道的 gids (游戏论坛ID)
 STAR_RAIL_GID = "6"
