@@ -175,7 +175,14 @@ def get_bbs_sign_info(cookies):
     for attempt in range(3):
         try:
             resp = requests.get(BBS_SIGN_INFO_URL, headers=headers, cookies=cookies, params=params, timeout=30)
+            print(f"候车室打卡状态码: {resp.status_code}")
             print(f"候车室打卡信息响应: {resp.text[:500]}")
+
+            # 检查是否为 JSON
+            if not resp.text.startswith('{'):
+                print(f"响应不是 JSON 格式")
+                return {"error": f"非JSON响应: {resp.text[:100]}"}
+
             data = resp.json()
             if data.get("retcode") == 0:
                 return data.get("data", {})
