@@ -178,10 +178,12 @@ def get_bbs_sign_info(cookies):
         if data.get("retcode") == 0:
             return data.get("data", {})
         else:
-            print(f"获取打卡信息失败: {data.get('message')}")
+            error_msg = f"retcode={data.get('retcode')}, message={data.get('message')}"
+            print(f"获取打卡信息失败: {error_msg}")
+            return {"error": error_msg}
     except Exception as e:
         print(f"获取打卡信息异常: {e}")
-    return None
+        return {"error": str(e)}
 
 
 def do_bbs_sign(cookies):
@@ -225,6 +227,9 @@ def bbs_sign_task(cookies):
 
     if sign_info is None:
         return "候车室: 获取打卡信息失败"
+
+    if "error" in sign_info:
+        return f"候车室: 获取打卡信息失败 ({sign_info['error']})"
 
     is_sign = sign_info.get("is_sign", False)
     sign_cnt = sign_info.get("sign_cnt", 0)
