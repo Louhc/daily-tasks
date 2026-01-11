@@ -9,6 +9,7 @@ import time
 import random
 import hashlib
 import string
+import json
 import requests
 
 # ============ 配置区 ============
@@ -44,9 +45,21 @@ def generate_device_id():
     return ''.join(random.choices('0123456789abcdef', k=32))
 
 
-def generate_ds():
-    """生成DS签名"""
-    salt = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v"
+def generate_ds(body="", query=""):
+    """生成DS签名 (DS2算法)"""
+    # 最新 salt (2.44.1 web)
+    salt = "xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs"
+    timestamp = int(time.time())
+    random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+
+    text = f"salt={salt}&t={timestamp}&r={random_str}&b={body}&q={query}"
+    md5_hash = hashlib.md5(text.encode()).hexdigest()
+    return f"{timestamp},{random_str},{md5_hash}"
+
+
+def generate_ds_simple():
+    """生成简单DS签名 (旧版本)"""
+    salt = "YVEIkzDFNHLeKXLxzqCA9TzxCpWwbIbk"
     timestamp = int(time.time())
     random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
     text = f"salt={salt}&t={timestamp}&r={random_str}"
@@ -90,9 +103,13 @@ def get_sign_info(cookies, region, game_uid):
         "uid": game_uid,
         "lang": "zh-cn"
     }
+    # 构建 query string 用于 DS
+    query = f"act_id={ACT_ID}&lang=zh-cn&region={region}&uid={game_uid}"
+
     headers = HEADERS.copy()
-    headers["DS"] = generate_ds()
+    headers["DS"] = generate_ds(body="", query=query)
     headers["x-rpc-device_id"] = generate_device_id()
+    headers["x-rpc-signgame"] = "hkrpg"
 
     try:
         resp = requests.get(INFO_URL, headers=headers, cookies=cookies, params=params, timeout=10)
@@ -118,10 +135,13 @@ def do_sign(cookies, region, game_uid):
         "uid": game_uid,
         "lang": "zh-cn"
     }
+    body = json.dumps(payload, separators=(',', ':'))
 
     headers = HEADERS.copy()
-    headers["DS"] = generate_ds()
+    headers["DS"] = generate_ds(body=body, query="")
     headers["x-rpc-device_id"] = generate_device_id()
+    headers["x-rpc-signgame"] = "hkrpg"
+    headers["Content-Type"] = "application/json"
 
     try:
         resp = requests.post(SIGN_URL, headers=headers, cookies=cookies, json=payload, timeout=10)
