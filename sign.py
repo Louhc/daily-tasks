@@ -171,19 +171,24 @@ def get_bbs_sign_info(cookies):
 
     params = {"gids": STAR_RAIL_GID}
 
-    try:
-        resp = requests.get(BBS_SIGN_INFO_URL, headers=headers, cookies=cookies, params=params, timeout=10)
-        print(f"候车室打卡信息响应: {resp.text[:500]}")
-        data = resp.json()
-        if data.get("retcode") == 0:
-            return data.get("data", {})
-        else:
-            error_msg = f"retcode={data.get('retcode')}, message={data.get('message')}"
-            print(f"获取打卡信息失败: {error_msg}")
-            return {"error": error_msg}
-    except Exception as e:
-        print(f"获取打卡信息异常: {e}")
-        return {"error": str(e)}
+    # 重试机制
+    for attempt in range(3):
+        try:
+            resp = requests.get(BBS_SIGN_INFO_URL, headers=headers, cookies=cookies, params=params, timeout=30)
+            print(f"候车室打卡信息响应: {resp.text[:500]}")
+            data = resp.json()
+            if data.get("retcode") == 0:
+                return data.get("data", {})
+            else:
+                error_msg = f"retcode={data.get('retcode')}, message={data.get('message')}"
+                print(f"获取打卡信息失败: {error_msg}")
+                return {"error": error_msg}
+        except Exception as e:
+            print(f"获取打卡信息异常 (尝试 {attempt + 1}/3): {e}")
+            if attempt < 2:
+                time.sleep(3)
+            else:
+                return {"error": str(e)}
 
 
 def do_bbs_sign(cookies):
@@ -207,13 +212,18 @@ def do_bbs_sign(cookies):
 
     payload = {"gids": STAR_RAIL_GID}
 
-    try:
-        resp = requests.post(BBS_SIGN_URL, headers=headers, cookies=cookies, json=payload, timeout=10)
-        print(f"候车室打卡响应: {resp.text}")
-        return resp.json()
-    except Exception as e:
-        print(f"候车室打卡异常: {e}")
-        return {"retcode": -1, "message": str(e)}
+    # 重试机制
+    for attempt in range(3):
+        try:
+            resp = requests.post(BBS_SIGN_URL, headers=headers, cookies=cookies, json=payload, timeout=30)
+            print(f"候车室打卡响应: {resp.text}")
+            return resp.json()
+        except Exception as e:
+            print(f"候车室打卡异常 (尝试 {attempt + 1}/3): {e}")
+            if attempt < 2:
+                time.sleep(3)
+            else:
+                return {"retcode": -1, "message": str(e)}
 
 
 def bbs_sign_task(cookies):
