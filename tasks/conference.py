@@ -94,6 +94,14 @@ def parse_deadline(deadline_str: str) -> datetime:
         return None
 
 
+def has_abstract_registration(comment: str) -> bool:
+    """Check if conference requires abstract registration"""
+    if not comment:
+        return False
+    comment_lower = comment.lower()
+    return 'abstract' in comment_lower and 'registration' in comment_lower
+
+
 def get_upcoming_deadlines() -> list:
     """Get conferences with upcoming deadlines"""
     conferences = fetch_conferences()
@@ -109,11 +117,37 @@ def get_upcoming_deadlines() -> list:
             if not any(t in conf_tags for t in FILTER_TAGS):
                 continue
 
+        # Check if abstract registration required
+        comment = conf.get('comment', '')
+        needs_abstract_reg = has_abstract_registration(comment)
+
         # Check deadlines
         deadlines = conf.get('deadlines', [])
         for dl_str in deadlines:
             dl = parse_deadline(dl_str)
-            if dl and now < dl <= cutoff:
+            if not dl:
+                continue
+
+            # Add abstract registration deadline (1 week before) if applicable
+            if needs_abstract_reg:
+                abstract_dl = dl - timedelta(days=7)
+                if now < abstract_dl <= cutoff:
+                    days_left = (abstract_dl - now).days
+                    upcoming.append({
+                        'name': conf.get('name', 'Unknown'),
+                        'description': conf.get('description', ''),
+                        'deadline': abstract_dl,
+                        'deadline_str': abstract_dl.strftime("%Y-%m-%d %H:%M"),
+                        'days_left': days_left,
+                        'date': conf.get('date', ''),
+                        'place': conf.get('place', ''),
+                        'link': conf.get('link', ''),
+                        'tags': conf_tags,
+                        'type': 'abstract'  # Abstract registration
+                    })
+
+            # Add paper submission deadline
+            if now < dl <= cutoff:
                 days_left = (dl - now).days
                 upcoming.append({
                     'name': conf.get('name', 'Unknown'),
@@ -124,7 +158,8 @@ def get_upcoming_deadlines() -> list:
                     'date': conf.get('date', ''),
                     'place': conf.get('place', ''),
                     'link': conf.get('link', ''),
-                    'tags': conf_tags
+                    'tags': conf_tags,
+                    'type': 'paper'  # Paper submission
                 })
 
     # Sort by deadline
@@ -158,7 +193,14 @@ def format_deadline_message() -> str:
         name = conf['name']
         dl_date = conf['deadline'].strftime("%m/%d")
 
-        lines.append(f"• **{name}** - {dl_date} ({urgency})")
+        # Show deadline type
+        dl_type = conf.get('type', 'paper')
+        if dl_type == 'abstract':
+            type_label = "[摘要注册]"
+        else:
+            type_label = "[论文提交]"
+
+        lines.append(f"• **{name}** {type_label} - {dl_date} ({urgency})")
         if conf['description']:
             lines.append(f"  {conf['description'][:50]}")
 
