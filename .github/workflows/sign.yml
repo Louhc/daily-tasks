@@ -34,5 +34,7 @@ jobs:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           WEATHER_AREA: ${{ vars.WEATHER_AREA || 'Queenstown' }}
           BANGUMI_WATCHLIST: ${{ vars.BANGUMI_WATCHLIST || '' }}
+          CONF_DAYS_AHEAD: ${{ vars.CONF_DAYS_AHEAD || '30' }}
+          CONF_FILTER_TAGS: ${{ vars.CONF_FILTER_TAGS || 'SEC,CRYPTO' }}
         run: |
           python main.py

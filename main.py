@@ -8,7 +8,7 @@
 """
 
 import os
-from tasks import miyoushe, weather, bangumi
+from tasks import miyoushe, weather, bangumi, conference
 from utils.push import push_wechat
 
 
@@ -55,6 +55,19 @@ def main():
     except Exception as e:
         print(f"番剧更新异常: {e}")
         all_messages.append(f"<b>【番剧更新】</b>")
+        all_messages.append(f"执行异常: {e}")
+        all_messages.append("")
+
+    # 4. 会议截止日期
+    try:
+        conf_msg = conference.run()
+        if conf_msg:
+            all_messages.append("<b>【会议DDL】</b>")
+            all_messages.append(conf_msg)
+            all_messages.append("")
+    except Exception as e:
+        print(f"会议DDL异常: {e}")
+        all_messages.append(f"<b>【会议DDL】</b>")
         all_messages.append(f"执行异常: {e}")
         all_messages.append("")
 

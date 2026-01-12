@@ -5,6 +5,7 @@ Automated daily tasks powered by GitHub Actions:
 - **MiYouShe Sign-in** - Game check-in for Honkai: Star Rail, Genshin Impact, etc.
 - **Weather Report** - Daily weather forecast for Singapore
 - **Anime Updates** - Daily anime broadcast notifications
+- **Conference Deadlines** - Security & Cryptography conference deadline reminders
 
 All results are pushed to WeChat via **PushPlus**.
 
@@ -24,6 +25,13 @@ All results are pushed to WeChat via **PushPlus**.
 - Uses Bangumi API to get daily broadcast schedule
 - Configurable watchlist to filter notifications
 - Shows all updates if watchlist is empty
+
+### 4. Conference Deadlines
+- Tracks Security & Cryptography conference deadlines
+- Data source: [sec-deadlines.github.io](https://sec-deadlines.github.io/)
+- Configurable tags filter (SEC, CRYPTO, PRIV, etc.)
+- Shows deadlines within configurable days ahead (default: 30 days)
+- Urgency indicators: 🔴 TODAY, 🟠 ≤3 days, 🟡 ≤7 days, 🟢 >7 days
 
 ## Setup
 
@@ -49,6 +57,8 @@ In `Settings` → `Secrets and variables` → `Actions` → `Variables`:
 |----------|---------|-------------|
 | `WEATHER_AREA` | `Queenstown` | Singapore weather area |
 | `BANGUMI_WATCHLIST` | empty | Anime watchlist, comma-separated |
+| `CONF_DAYS_AHEAD` | `30` | Show deadlines within N days |
+| `CONF_FILTER_TAGS` | `SEC,CRYPTO` | Filter by conference tags |
 
 **Singapore Area Examples**:
 - `Queenstown` - NUS Main Campus
@@ -61,6 +71,12 @@ In `Settings` → `Secrets and variables` → `Actions` → `Variables`:
 ```
 Frieren,Jujutsu Kaisen,Attack on Titan
 ```
+
+**Conference Tags Example**:
+```
+SEC,CRYPTO,PRIV
+```
+Available tags: `SEC` (Security), `CRYPTO` (Cryptography), `PRIV` (Privacy), `CONF` (Conference), `TOP4` (Top 4 venues)
 
 ### 4. Enable Actions
 
@@ -83,7 +99,8 @@ To change: edit cron expression in `.github/workflows/sign.yml`.
 ├── tasks/
 │   ├── miyoushe.py         # MiYouShe sign-in
 │   ├── weather.py          # Weather report
-│   └── bangumi.py          # Anime updates
+│   ├── bangumi.py          # Anime updates
+│   └── conference.py       # Conference deadlines
 ├── utils/
 │   └── push.py             # Push notifications
 ├── .github/workflows/
