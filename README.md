@@ -1,99 +1,99 @@
-# Daily Tasks 每日任务
+# Daily Tasks
 
-基于 GitHub Actions 的每日自动任务脚本，支持：
+Automated daily tasks powered by GitHub Actions:
 
-- **米游社签到** - 崩坏：星穹铁道、原神等游戏签到
-- **天气推送** - 新加坡每日天气预报
-- **番剧更新** - 每日番剧放送提醒
+- **MiYouShe Sign-in** - Game check-in for Honkai: Star Rail, Genshin Impact, etc.
+- **Weather Report** - Daily weather forecast for Singapore
+- **Anime Updates** - Daily anime broadcast notifications
 
-所有任务结果通过 **PushPlus** 推送到微信。
+All results are pushed to WeChat via **PushPlus**.
 
-## 功能说明
+## Features
 
-### 1. 米游社签到
-- 支持：崩坏：星穹铁道（已启用）、原神、崩坏3、绝区零
-- 自动获取绑定角色并签到
-- 启用/禁用游戏：编辑 `tasks/miyoushe.py` 中的 `GAMES` 配置
+### 1. MiYouShe Sign-in
+- Supports: Honkai: Star Rail (enabled), Genshin Impact, Honkai Impact 3, Zenless Zone Zero
+- Automatically detects bound game characters
+- Enable/disable games: edit `GAMES` config in `tasks/miyoushe.py`
 
-### 2. 天气推送
-- 使用新加坡政府免费 API (data.gov.sg)
-- 推送当日温度、湿度、天气预报
-- 可自定义区域（默认：Queenstown / NUS 所在区域）
+### 2. Weather Report
+- Uses Singapore Government free API (data.gov.sg)
+- Pushes daily temperature, humidity, and forecast
+- Customizable area (default: Queenstown / NUS area)
 
-### 3. 番剧更新
-- 使用 Bangumi API 获取每日放送
-- 可配置追番列表，只提醒关注的番剧
-- 未配置则推送当日所有更新
+### 3. Anime Updates
+- Uses Bangumi API to get daily broadcast schedule
+- Configurable watchlist to filter notifications
+- Shows all updates if watchlist is empty
 
-## 使用方法
+## Setup
 
-### 1. Fork 本仓库
+### 1. Fork this repository
 
-### 2. 配置 Secrets
+### 2. Configure Secrets
 
-进入仓库 `Settings` → `Secrets and variables` → `Actions`：
+Go to `Settings` → `Secrets and variables` → `Actions`:
 
-| Secret | 必填 | 说明 |
-|--------|------|------|
-| `MIYOUSHE_COOKIE` | 是 | 米游社 Cookie |
-| `PUSHPLUS_TOKEN` | 是 | PushPlus Token |
+| Secret | Required | Description |
+|--------|----------|-------------|
+| `MIYOUSHE_COOKIE` | Yes | MiYouShe Cookie |
+| `PUSHPLUS_TOKEN` | Yes | PushPlus Token |
 
-### 3. 配置 Variables（可选）
+### 3. Configure Variables (Optional)
 
-在 `Settings` → `Secrets and variables` → `Actions` → `Variables`：
+In `Settings` → `Secrets and variables` → `Actions` → `Variables`:
 
-| Variable | 默认值 | 说明 |
-|----------|--------|------|
-| `WEATHER_AREA` | `Queenstown` | 新加坡天气区域 |
-| `BANGUMI_WATCHLIST` | 空 | 追番列表，逗号分隔 |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WEATHER_AREA` | `Queenstown` | Singapore weather area |
+| `BANGUMI_WATCHLIST` | empty | Anime watchlist, comma-separated |
 
-**新加坡区域示例**：
-- `Queenstown` - NUS 主校区
-- `Bukit Timah` - NUS 法学院
-- `Orchard` - 乌节路
+**Singapore Area Examples**:
+- `Queenstown` - NUS Main Campus
+- `Bukit Timah` - NUS Law School
+- `Orchard` - Orchard Road
 - `Jurong East` / `Jurong West`
 - `Tampines` / `Bedok` / `Pasir Ris`
 
-**追番列表示例**：
+**Watchlist Example**:
 ```
-葬送的芙莉莲,咒术回战,进击的巨人
+Frieren,Jujutsu Kaisen,Attack on Titan
 ```
 
-### 4. 启用 Actions
+### 4. Enable Actions
 
-进入 `Actions` 标签页，启用 workflow。
+Go to `Actions` tab and enable the workflow.
 
-### 5. 手动测试
+### 5. Test
 
-点击 `Run workflow` 手动运行测试。
+Click `Run workflow` to manually trigger a test run.
 
-## 运行时间
+## Schedule
 
-默认每天 **北京时间 8:00** (UTC 0:00) 自动运行。
+Runs daily at **8:00 AM SGT** (UTC 0:00).
 
-修改时间：编辑 `.github/workflows/sign.yml` 中的 cron 表达式。
+To change: edit cron expression in `.github/workflows/sign.yml`.
 
-## 项目结构
+## Project Structure
 
 ```
-├── main.py                 # 主入口
+├── main.py                 # Entry point
 ├── tasks/
-│   ├── miyoushe.py         # 米游社签到
-│   ├── weather.py          # 天气推送
-│   └── bangumi.py          # 番剧更新
+│   ├── miyoushe.py         # MiYouShe sign-in
+│   ├── weather.py          # Weather report
+│   └── bangumi.py          # Anime updates
 ├── utils/
-│   └── push.py             # 推送模块
+│   └── push.py             # Push notifications
 ├── .github/workflows/
-│   └── sign.yml            # GitHub Actions 配置
+│   └── sign.yml            # GitHub Actions config
 └── README.md
 ```
 
-## 添加新任务
+## Adding New Tasks
 
-1. 在 `tasks/` 目录创建新模块
-2. 实现 `run()` 函数，返回消息字符串或列表
-3. 在 `main.py` 中导入并调用
+1. Create a new module in `tasks/`
+2. Implement `run()` function returning a message string or list
+3. Import and call it in `main.py`
 
-## 免责声明
+## Disclaimer
 
-本项目仅供学习交流使用。
+For personal use and learning purposes only.
