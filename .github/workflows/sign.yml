@@ -1,7 +1,7 @@
-name: 米游社星穹铁道签到
+name: 每日任务
 
 on:
-  # 定时触发 - 每天北京时间早上8点运行 (UTC 0点)
+  # 每天北京时间早上8点运行 (UTC 0点)
   schedule:
     - cron: '0 0 * * *'
 
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  sign:
+  daily-tasks:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +25,11 @@ jobs:
         run: |
           pip install requests
 
-      - name: Run Sign Script
+      - name: Run Daily Tasks
         env:
           MIYOUSHE_COOKIE: ${{ secrets.MIYOUSHE_COOKIE }}
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          WEATHER_AREA: ${{ vars.WEATHER_AREA || 'Queenstown' }}
+          BANGUMI_WATCHLIST: ${{ vars.BANGUMI_WATCHLIST || '' }}
         run: |
-          python sign.py
+          python main.py
