@@ -115,7 +115,7 @@ def get_game_roles(cookies, game_biz):
 
 
 def get_sign_info(cookies, act_id, region, game_uid, api_type="luna"):
-    """获取签到信息"""
+    """获取签到信息，返回 (data, error_msg)"""
     info_url = API_URLS[api_type]["info"]
     params = {
         "act_id": act_id,
@@ -133,10 +133,11 @@ def get_sign_info(cookies, act_id, region, game_uid, api_type="luna"):
         resp = requests.get(info_url, headers=headers, cookies=cookies, params=params, timeout=10)
         data = resp.json()
         if data.get("retcode") == 0:
-            return data.get("data", {})
+            return data.get("data", {}), None
+        else:
+            return None, f"retcode={data.get('retcode')}, msg={data.get('message')}"
     except Exception as e:
-        print(f"获取签到信息异常: {e}")
-    return None
+        return None, f"exception: {e}"
 
 
 def do_sign(cookies, act_id, region, game_uid, api_type="luna"):
@@ -195,10 +196,10 @@ def sign_game(game_key: str) -> list:
 
         # 获取签到信息
         api_type = game.get("api_type", "luna")
-        sign_info = get_sign_info(cookies, game["act_id"], region, game_uid, api_type)
+        sign_info, error_msg = get_sign_info(cookies, game["act_id"], region, game_uid, api_type)
 
         if sign_info is None:
-            results.append(f"{game['name']}-{nickname}: 获取签到信息失败")
+            results.append(f"{game['name']}-{nickname}: 获取签到信息失败 ({error_msg})")
             continue
 
         is_sign = sign_info.get("is_sign", False)
