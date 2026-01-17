@@ -33,6 +33,7 @@ GAMES = {
         "game_biz": "hk4e_cn",
         "api_type": "luna",
         "signgame": "hk4e",
+        "max_roles": 1,  # 只签到第一个账号
     },
     "bh3": {  # 崩坏3
         "name": "崩坏3",
@@ -196,6 +197,11 @@ def sign_game(game_key: str) -> list:
     roles = get_game_roles(cookies, game["game_biz"])
     if not roles:
         return [f"{game['name']}: 未找到绑定角色"]
+
+    # 限制签到角色数量
+    max_roles = game.get("max_roles", 0)
+    if max_roles > 0:
+        roles = roles[:max_roles]
 
     for role in roles:
         nickname = role.get("nickname", "未知")
