@@ -24,6 +24,7 @@ GAMES = {
         "act_id": "e202304121516551",
         "game_biz": "hkrpg_cn",
         "api_type": "luna",
+        "signgame": "hkrpg",
     },
     "hk4e": {  # 原神
         "name": "原神",
@@ -31,6 +32,7 @@ GAMES = {
         "act_id": "e202311201442471",
         "game_biz": "hk4e_cn",
         "api_type": "luna",
+        "signgame": "hk4e",
     },
     "bh3": {  # 崩坏3
         "name": "崩坏3",
@@ -38,6 +40,7 @@ GAMES = {
         "act_id": "e202207181446311",
         "game_biz": "bh3_cn",
         "api_type": "luna",
+        "signgame": "bh3",
     },
     "nap": {  # 绝区零
         "name": "绝区零",
@@ -45,6 +48,7 @@ GAMES = {
         "act_id": "e202406242138391",
         "game_biz": "nap_cn",
         "api_type": "luna",
+        "signgame": "zzz",
     },
 }
 
@@ -114,7 +118,7 @@ def get_game_roles(cookies, game_biz):
     return []
 
 
-def get_sign_info(cookies, act_id, region, game_uid, api_type="luna"):
+def get_sign_info(cookies, act_id, region, game_uid, api_type="luna", signgame=""):
     """获取签到信息，返回 (data, error_msg)"""
     info_url = API_URLS[api_type]["info"]
     params = {
@@ -128,6 +132,8 @@ def get_sign_info(cookies, act_id, region, game_uid, api_type="luna"):
     headers = HEADERS.copy()
     headers["DS"] = generate_ds(body="", query=query)
     headers["x-rpc-device_id"] = generate_device_id()
+    if signgame:
+        headers["x-rpc-signgame"] = signgame
 
     try:
         resp = requests.get(info_url, headers=headers, cookies=cookies, params=params, timeout=10)
@@ -140,7 +146,7 @@ def get_sign_info(cookies, act_id, region, game_uid, api_type="luna"):
         return None, f"exception: {e}"
 
 
-def do_sign(cookies, act_id, region, game_uid, api_type="luna"):
+def do_sign(cookies, act_id, region, game_uid, api_type="luna", signgame=""):
     """执行签到"""
     sign_url = API_URLS[api_type]["sign"]
     payload = {
@@ -155,6 +161,8 @@ def do_sign(cookies, act_id, region, game_uid, api_type="luna"):
     headers["DS"] = generate_ds(body=body, query="")
     headers["x-rpc-device_id"] = generate_device_id()
     headers["Content-Type"] = "application/json"
+    if signgame:
+        headers["x-rpc-signgame"] = signgame
 
     try:
         resp = requests.post(sign_url, headers=headers, cookies=cookies, json=payload, timeout=10)
@@ -196,7 +204,8 @@ def sign_game(game_key: str) -> list:
 
         # 获取签到信息
         api_type = game.get("api_type", "luna")
-        sign_info, error_msg = get_sign_info(cookies, game["act_id"], region, game_uid, api_type)
+        signgame = game.get("signgame", "")
+        sign_info, error_msg = get_sign_info(cookies, game["act_id"], region, game_uid, api_type, signgame)
 
         if sign_info is None:
             results.append(f"{game['name']}-{nickname}: 获取签到信息失败 ({error_msg})")
@@ -213,7 +222,7 @@ def sign_game(game_key: str) -> list:
         time.sleep(random.randint(2, 5))
 
         # 执行签到
-        result = do_sign(cookies, game["act_id"], region, game_uid, api_type)
+        result = do_sign(cookies, game["act_id"], region, game_uid, api_type, signgame)
         retcode = result.get("retcode", -1)
         message = result.get("message", "未知错误")
 
